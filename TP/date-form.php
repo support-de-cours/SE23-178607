@@ -38,16 +38,24 @@ $months = [
     <div>
         <select name="date[month]" id="month">
             <option value="null">Mois</option>
-            <option value="1">janvier</option>
-            <option value="2">février</option>
+            <?php for($i=0; $i<12; $i++): ?>
+            <option value="<?= ($i+1) ?>"><?=  $months[$i] ?></option>
+            <?php endfor; ?>
         </select>
     </div>
 
     <div>
         <select name="date[year]" id="year">
             <option value="null">Années</option>
-            <option value="2023">2023</option>
-            <option value="1023">1023</option>
+
+            <?php 
+                $year = date("Y");
+                $year_min = $year - 100;
+            ?>
+            
+            <?php for($i=$year; $i>=$year_min; $i--): ?>
+            <option value="<?= $i ?>"><?= $i ?></option>
+            <?php endfor; ?>
         </select>
     </div>
 </body>
