@@ -29,3 +29,16 @@ echo ($a || $b) ? "VRAI" : " FAUX"; echo "<hr>";
 // notation : "XOR"
 echo 'XOR - $a XOR $b : ';
 echo ($a XOR $b) ? "VRAI" : " FAUX"; echo "<hr>";
+
+
+// Inverse de la valeur logique
+// -- 
+// notation : "!"
+// si $a est TRUE, !$a est FALSE
+
+
+echo '$a : '; var_dump( $a ); echo "<br>";
+
+$c = "abc";
+echo '$c : '; var_dump( !!$c ); echo "<br>";
+echo '$c : '; var_dump( !!$c === true ); echo "<br>";
