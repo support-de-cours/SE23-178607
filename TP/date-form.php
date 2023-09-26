@@ -38,12 +38,16 @@ $months = [
     <div>
         <select name="date[month]" id="month">
             <option value="null">Mois</option>
+            <option value="1">janvier</option>
+            <option value="2">février</option>
         </select>
     </div>
 
     <div>
         <select name="date[year]" id="year">
             <option value="null">Années</option>
+            <option value="2023">2023</option>
+            <option value="1023">1023</option>
         </select>
     </div>
 </body>
