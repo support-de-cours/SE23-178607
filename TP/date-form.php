@@ -30,7 +30,7 @@ $months = [
         <select name="date[day]" id="day">
             <option value="null">Jour</option>
             <?php for ($i=1; $i<=31; $i++): ?>
-                <option value="<?= $i ?>"><?= $i ?></option>
+            <option value="<?= $i ?>"><?= $i ?></option>
             <?php endfor; ?>
         </select>
     </div>
@@ -52,7 +52,7 @@ $months = [
                 $year = date("Y");
                 $year_min = $year - 100;
             ?>
-            
+
             <?php for($i=$year; $i>=$year_min; $i--): ?>
             <option value="<?= $i ?>"><?= $i ?></option>
             <?php endfor; ?>
