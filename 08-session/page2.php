@@ -1,13 +1,10 @@
 <?php 
-session_start();
+require_once "base.php";
+dump($_SESSION, false);
 ?>
 
-<nav>
-    <ul>
-        <li><a href="./index.php">index</a></li>
-        <li><a href="./page1.php">page 1</a></li>
-        <li><a href="./page2.php">page 2</a></li>
-    </ul>
-</nav>
-
 <h1>Page 2</h1>
+<p><?= $_SESSION['my_var'] ?></p>
+
+<?php 
+unset($_SESSION['my_var']);
