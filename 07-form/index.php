@@ -1,7 +1,56 @@
 <?php 
+
+// Test si le formulaire est soumis
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
-    print_r($_POST); 
+    // Initialisation du controle
+    // --
+
+    // Initialisation du tableau d'erreur
+    $errors = [];
+
+
+    // Recupération des champs
+    // -- 
+
+    $firstname = isset($_POST['firstname']) ? trim($_POST['firstname']) : null;
+
+
+    // Controle des champs
+    // --
+
+    if ($firstname === null)
+    {
+        $errors['firstname'] = "Le prénom est obligatoire";
+    }
+    else if (empty($firstname))
+    {
+        $errors['firstname'] = "Le prénom est obligatoire";
+    }
+    else if (!preg_match("/^[a-z]+$/i", $firstname))
+    {
+        $errors['firstname'] = "Le prénom dois contenir des caracteres alphabétique uniquement.";
+    }
+
+
+
+
+    if (empty($errors))
+    {
+        // Enregistrement des données
+        // Redirection de l'utilisateur
+        echo "Enregistrement en BDD !!!!!<br>";
+        exit;
+    }
+    else
+    {
+        // Affichage des erreurs
+        echo "ERRORS !!!!!<br>";
+        print_r($errors);
+        exit;
+    }
+
+
 }
 ?>
 <!DOCTYPE html>
@@ -19,13 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         <h1>PHP Form</h1>
 
         <div class="row">
-            <div class="col-6 offset-3">
+            <div class="col-8 offset-2">
 
                 <form method="post" novalidate>
         
                     <div class="mb-3">
-                        <label for="truc">Prénom</label>
-                        <input type="text" class="form-control" name="firstname" id="truc" value="" required>
+                        <label for="firstname">Prénom</label>
+                        <input type="text" class="form-control" name="firstname" id="firstname" value="" required>
                     </div>
         
                     <div class="mb-3">
@@ -45,34 +94,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                     
                     <div class="mb-3">
                         <label for="confirm">Confirmez votre nouveau mot de passe</label>
-                        <input type="password" class="form-control" name="confirm" id="confirm" value="" required>
+                        <input type="password" class="form-control" name="confirm" id="confirm" value="">
                     </div>
 
                     <div class="mb-3">
                         <label for="birthday_day">Date de naissance</label>
                         <div class="row">
                             <div class="col-4">
-                                <select name="birthday[day]" id="birthday_day" class="form-control">
+                                <select name="birthday[day]" id="birthday_day" class="form-control" required>
                                     <option value="null">Jours</option>
                                 </select>
                             </div>
                             <div class="col-4">
-                                <select name="birthday[month]" class="form-control">
+                                <select name="birthday[month]" class="form-control" required>
                                     <option value="null">Mois</option>
                                 </select>
                             </div>
                             <div class="col-4">
-                                <select name="birthday[year]" class="form-control">
+                                <select name="birthday[year]" class="form-control" required>
                                     <option value="null">Années</option>
                                 </select>
                             </div>
                         </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label>
+                            <input type="checkbox" name="terms">
+                            J'accepte les CGU
+                        </label>
+                    </div>
                     
                     <button type="submit" class="btn btn-sm btn-primary">Send</button>
                     <button type="reset" class="btn btn-sm btn-secondary">Cancel</button>
                 </form>
-
 
             </div>
         </div>
