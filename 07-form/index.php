@@ -16,6 +16,10 @@ $birthday_month = null;
 $birthday_year  = null;
 $terms          = false;
 
+$password_min = 6;
+$password_max = 12;
+$password_special_chars = "!-_*+=.()@#";
+
 
 // Test si le formulaire est soumis
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
@@ -38,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     $birthday_year  = isset($_POST['birthday']['year']) ? trim($_POST['birthday']['year']) : null;
     $terms          = isset($_POST['terms']);
 
-
     // Controle des champs
     // --
 
@@ -57,24 +60,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     {
         $errors['lastname'] = "Le nom est obligatoire";
     }
-    else if (!preg_match("!^[a-z]+$!i", $lastname))
+    else if (!preg_match("/^[a-z]+$/i", $lastname))
     {
         $errors['lastname'] = "Le nom dois contenir des caracteres alphabétique uniquement.";
     }
 
     // email
-    // [A-Z0-9a-z\._%+-]+@[A-Za-z0-9\.-]+\.[A-Za-z]{2,64}
+    if (empty($email))
+    {
+        $errors['email'] = "L'adresse email est obligatoire";
+    }
+    else if (!preg_match("/[0-9a-z._%+-]+@[a-z0-9.-]+\.[a-z]{2,64}/i", $email))
+    {
+        $errors['email'] = "L'adresse email n'est pas correcte";
+    }
 
 
     // Password
+    if (empty($password))
+    {
+        $errors['password'] = "Le mot de passe est obligatoire";
+    }
     // -> min 6 caractère
+    else if (strlen($password) < $password_min)
+    {
+        $errors['password'] = "Le mot de passe doit contenir $password_min caractères minimum";
+    }
     // -> max 12 caractère
+    else if (strlen($password) > $password_max)
+    {
+        $errors['password'] = "Le mot de passe doit contenir $password_max caractères maximum";
+    }
     // -> au moins 1 minuscule
+    else if (!preg_match("/[a-z]+/", $password))
+    {
+        $errors['password'] = "Le mot de passe doit contenir au moins une minuscule";
+    }
     // -> au moins 1 majuscule
+    else if (!preg_match("/[A-Z]+/", $password))
+    {
+        $errors['password'] = "Le mot de passe doit contenir au moins une majuscule";
+    }
     // -> au moins 1 numérique
+    else if (!preg_match("/[0-9]+/", $password))
+    {
+        $errors['password'] = "Le mot de passe doit contenir au moins un chiffre";
+    }
     // -> au moins 1 caractère spécial
+    // else if (!preg_match("/\W/", $password))
+    else if (!preg_match("/[" . preg_quote($password_special_chars, '/') . "]+/", $password))
+    {
+        $errors['password'] = "Le mot de passe doit contenir au moins un caractères spécial $password_special_chars";
+    }
 
     // Confirmation
+    if ($confirm !== $password)
+    {
+        $errors['confirm'] = "Les mot de passe doivent etre identiques.";
+    }
 
     // Birthday
 
@@ -94,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         // Affichage des erreurs
         echo date("Y-m-d H:i:s");
         echo "ERRORS !!!!!<br>";
-        print_r($errors);
+        dump($errors, false);
     }
 }
 
@@ -144,17 +187,17 @@ function dump(mixed $data, bool $vd=true): void
                     
                     <div class="mb-3">
                         <label for="email">Votre adresse e-mail</label>
-                        <input type="email" class="form-control" name="email" id="email" value="" required>
+                        <input type="email" class="form-control" name="email" id="email" value="<?= $email ?>" required>
                     </div>
                     
                     <div class="mb-3">
                         <label for="password">Votre nouveau mot de passe</label>
-                        <input type="password" class="form-control" name="password" id="password" value="" required>
+                        <input type="text" class="form-control" name="password" id="password" required>
                     </div>
                     
                     <div class="mb-3">
                         <label for="confirm">Confirmez votre nouveau mot de passe</label>
-                        <input type="password" class="form-control" name="confirm" id="confirm" value="">
+                        <input type="text" class="form-control" name="confirm" id="confirm">
                     </div>
 
                     <div class="mb-3">
