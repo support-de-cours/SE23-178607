@@ -19,6 +19,7 @@ $terms          = false;
 $password_min = 6;
 $password_max = 12;
 $password_special_chars = "!-_*+=.()@#";
+$min_age = 13;
 
 
 // Test si le formulaire est soumis
@@ -37,10 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     $email          = isset($_POST['email']) ? trim($_POST['email']) : null;
     $password       = isset($_POST['password']) ? $_POST['password'] : null;
     $confirm        = isset($_POST['confirm']) ? $_POST['confirm'] : null;
-    $birthday_day   = isset($_POST['birthday']['day']) ? trim($_POST['birthday']['day']) : null;
-    $birthday_month = isset($_POST['birthday']['month']) ? trim($_POST['birthday']['month']) : null;
-    $birthday_year  = isset($_POST['birthday']['year']) ? trim($_POST['birthday']['year']) : null;
+    $birthday_day   = isset($_POST['birthday']['day']) ? (int) $_POST['birthday']['day']   : null;
+    $birthday_month = isset($_POST['birthday']['month']) ? (int) $_POST['birthday']['month'] : null;
+    $birthday_year  = isset($_POST['birthday']['year']) ? (int) $_POST['birthday']['year']  : null;
     $terms          = isset($_POST['terms']);
+
 
     // Controle des champs
     // --
@@ -120,8 +122,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     }
 
     // Birthday
+    $date = new DateTime("$birthday_year-$birthday_month-$birthday_day");
+    $now = new DateTime();
+    $age = ( 
+        date("md", date("U", mktime(0, 0, 0, $birthday_month, $birthday_day, $birthday_year))) > date("md")
+        ? ((date("Y") - $birthday_year) - 1)
+        : (date("Y") - $birthday_year)
+    );
+
+    // $date = new DateTime();
+    // $age = date('Y-m-d', strtotime($date->format('Y-m-d') .' +18 year'));
+
+
+    // -> date valide
+    if (!checkdate($birthday_month, $birthday_day, $birthday_year) )
+    {
+        $errors['birthday'] = "Indiquez une date valide.";
+    }
+    // -> date dans le passé
+    else if ($date > $now) 
+    {
+        $errors['birthday'] = "Indiquez une date passée.";
+    }
+    // -> age minimum 13
+    else if ($age < $min_age)
+    {
+        $errors['birthday'] = "Vous n'avez pas l'age requis pour vous inscrire.";
+    }
 
     // Terms
+    // $terms ?: $errors['terms'] = "Vous devez accepter les CGU.";
+    if (!$terms)
+    {
+        $errors['terms'] = "Vous devez accepter les CGU.";
+    }
+
 
 
 
@@ -207,7 +242,7 @@ function dump(mixed $data, bool $vd=true): void
                                 <select name="birthday[day]" id="birthday_day" class="form-control" required>
                                     <option value="null">Jours</option>
                                     <?php for ($i=1; $i<=31; $i++): ?>
-                                    <option value="<?= $i ?>"><?= $i ?></option>
+                                    <option value="<?= $i ?>" <?= $i === 3 ? "selected" : null ?>><?= $i ?></option>
                                     <?php endfor; ?>
                                 </select>
                             </div>
@@ -215,7 +250,7 @@ function dump(mixed $data, bool $vd=true): void
                                 <select name="birthday[month]" class="form-control" required>
                                     <option value="null">Mois</option>
                                     <?php for($i=0; $i<12; $i++): ?>
-                                    <option value="<?= ($i+1) ?>"><?= $months[$i] ?></option>
+                                    <option value="<?= ($i+1) ?>" <?= $i === 8 ? "selected" : null ?>><?= $months[$i] ?></option>
                                     <?php endfor; ?>
                                 </select>
                             </div>
@@ -223,7 +258,7 @@ function dump(mixed $data, bool $vd=true): void
                                 <select name="birthday[year]" class="form-control" required>
                                     <option value="null">Années</option>
                                     <?php for($i=$year; $i>=$year_min; $i--): ?>
-                                    <option value="<?= $i ?>"><?= $i ?></option>
+                                    <option value="<?= $i ?>" <?= $i === 1985 ? "selected" : null ?>><?= $i ?></option>
                                     <?php endfor; ?>
                                 </select>
                             </div>
