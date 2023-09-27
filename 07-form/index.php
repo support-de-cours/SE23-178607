@@ -1,11 +1,18 @@
 <?php 
+session_start();
+
 // ---
 
-$months   = ["janvier","février","mars","avril","mai","juin","juillet","aout","septembre","octobre","novembre","décembre"];
-$year     = date("Y");
-$year_min = $year - 100;
+// Definition de quelques variable
+$months                 = ["janvier","février","mars","avril","mai","juin","juillet","aout","septembre","octobre","novembre","décembre"];
+$year                   = date("Y");
+$year_min               = $year - 100;
+$password_min           = 6;
+$password_max           = 12;
+$password_special_chars = "!-_*+=.()@#";
+$min_age                = 13;
 
-
+// Definition des valeurs par defaut des champs du formulair
 $firstname      = null;
 $lastname       = null;
 $email          = null;
@@ -16,10 +23,12 @@ $birthday_month = null;
 $birthday_year  = null;
 $terms          = false;
 
-$password_min = 6;
-$password_max = 12;
-$password_special_chars = "!-_*+=.()@#";
-$min_age = 13;
+// CSRF Token
+if (!isset($_SESSION['csrf_token']))
+{
+    $_SESSION['csrf_token'] = md5(uniqid());
+    $_SESSION['csrf_expire'] = time() + 3600;
+}
 
 
 // Test si le formulaire est soumis
@@ -33,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     // Recupération des champs
     // -- 
 
+    $csrf_token     = isset($_POST['csrf_token']) ? trim($_POST['csrf_token']) : null;
     $firstname      = isset($_POST['firstname']) ? trim($_POST['firstname']) : null;
     $lastname       = isset($_POST['lastname']) ? trim($_POST['lastname']) : null;
     $email          = isset($_POST['email']) ? trim($_POST['email']) : null;
@@ -46,6 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 
     // Controle des champs
     // --
+
+    if ($csrf_token !== $_SESSION['csrf_token'] || $_SESSION['csrf_expire'] < time())
+    {
+        $errors['csrf_token'] = "CSRF Token invalide";
+    }
 
     // Firstname
     if (empty($firstname))
@@ -158,21 +173,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     }
 
 
-
-
     if (empty($errors))
     {
+        // Suppression du token de la session
+        unset($_SESSION['csrf_token']);
+        unset($_SESSION['csrf_expire']);
+
         // Enregistrement des données
         // Redirection de l'utilisateur
         echo "Enregistrement en BDD !!!!!<br>";
         exit;
-    }
-    else
-    {
-        // Affichage des erreurs
-        echo date("Y-m-d H:i:s");
-        echo "ERRORS !!!!!<br>";
-        dump($errors, false);
     }
 }
 
@@ -198,7 +208,6 @@ function dump(mixed $data, bool $vd=true): void
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-
 </head>
 <body>
     
@@ -210,59 +219,70 @@ function dump(mixed $data, bool $vd=true): void
 
                 <form method="post" novalidate>
         
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <?php if (isset($errors['csrf_token'])): ?>
+                    <div class="alert alert-danger"><?= $errors['csrf_token'] ?></div>
+                    <?php endif; ?>
+
                     <div class="mb-3">
                         <label for="firstname">Prénom</label>
-                        <input type="text" class="form-control" name="firstname" id="firstname" value="<?= $firstname ?>" required>
+                        <input type="text" class="form-control <?= isset($errors['firstname']) ? "is-invalid" : null ?>" name="firstname" id="firstname" value="<?= $firstname ?>" required>
+                        <?php if (isset($errors['firstname'])): ?><p class="invalid-feedback"><?= $errors['firstname'] ?></p><?php endif; ?>
                     </div>
         
                     <div class="mb-3">
                         <label for="lastname">NOM</label>
-                        <input type="text" class="form-control" name="lastname" id="lastname" value="<?= $lastname ?>" required>
+                        <input type="text" class="form-control <?= !isset($errors['lastname']) ?: "is-invalid" ?>" name="lastname" id="lastname" value="<?= $lastname ?>" required>
+                        <?php if (isset($errors['lastname'])): ?><p class="invalid-feedback"><?= $errors['lastname'] ?></p><?php endif; ?>
                     </div>
                     
                     <div class="mb-3">
                         <label for="email">Votre adresse e-mail</label>
-                        <input type="email" class="form-control" name="email" id="email" value="<?= $email ?>" required>
+                        <input type="email" class="form-control <?= !isset($errors['email']) ?: "is-invalid" ?>" name="email" id="email" value="<?= $email ?>" required>
+                        <?php if (isset($errors['email'])): ?><p class="invalid-feedback"><?= $errors['email'] ?></p><?php endif; ?>
                     </div>
                     
                     <div class="mb-3">
                         <label for="password">Votre nouveau mot de passe</label>
-                        <input type="text" class="form-control" name="password" id="password" required>
+                        <input type="password" class="form-control <?= !isset($errors['password']) ?: "is-invalid" ?>" name="password" id="password" required>
+                        <?php if (isset($errors['password'])): ?><p class="invalid-feedback"><?= $errors['password'] ?></p><?php endif; ?>
                     </div>
                     
                     <div class="mb-3">
                         <label for="confirm">Confirmez votre nouveau mot de passe</label>
-                        <input type="text" class="form-control" name="confirm" id="confirm">
+                        <input type="password" class="form-control <?= !isset($errors['confirm']) ?: "is-invalid" ?>" name="confirm" id="confirm">
+                        <?php if (isset($errors['confirm'])): ?><p class="invalid-feedback"><?= $errors['confirm'] ?></p><?php endif; ?>
                     </div>
 
                     <div class="mb-3">
                         <label for="birthday_day">Date de naissance</label>
                         <div class="row">
                             <div class="col-4">
-                                <select name="birthday[day]" id="birthday_day" class="form-control" required>
+                                <select name="birthday[day]" id="birthday_day" class="form-control <?= !isset($errors['birthday']) ?: "is-invalid" ?>" required>
                                     <option value="null">Jours</option>
                                     <?php for ($i=1; $i<=31; $i++): ?>
-                                    <option value="<?= $i ?>" <?= $i === 3 ? "selected" : null ?>><?= $i ?></option>
+                                    <option value="<?= $i ?>" <?= $i === $birthday_day ? "selected" : null ?>><?= $i ?></option>
                                     <?php endfor; ?>
                                 </select>
                             </div>
                             <div class="col-4">
-                                <select name="birthday[month]" class="form-control" required>
+                                <select name="birthday[month]" class="form-control <?= !isset($errors['birthday']) ?: "is-invalid" ?>" required>
                                     <option value="null">Mois</option>
                                     <?php for($i=0; $i<12; $i++): ?>
-                                    <option value="<?= ($i+1) ?>" <?= $i === 8 ? "selected" : null ?>><?= $months[$i] ?></option>
+                                    <option value="<?= ($i+1) ?>" <?= $i === $birthday_month ? "selected" : null ?>><?= $months[$i] ?></option>
                                     <?php endfor; ?>
                                 </select>
                             </div>
                             <div class="col-4">
-                                <select name="birthday[year]" class="form-control" required>
+                                <select name="birthday[year]" class="form-control <?= !isset($errors['birthday']) ?: "is-invalid" ?>" required>
                                     <option value="null">Années</option>
                                     <?php for($i=$year; $i>=$year_min; $i--): ?>
-                                    <option value="<?= $i ?>" <?= $i === 1985 ? "selected" : null ?>><?= $i ?></option>
+                                    <option value="<?= $i ?>" <?= $i === $birthday_year ? "selected" : null ?>><?= $i ?></option>
                                     <?php endfor; ?>
                                 </select>
                             </div>
                         </div>
+                        <?php if (isset($errors['birthday'])): ?><p class="text-danger"><?= $errors['birthday'] ?></p><?php endif; ?>
                     </div>
 
                     <div class="mb-3">
