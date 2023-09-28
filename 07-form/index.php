@@ -1,5 +1,6 @@
 <?php 
 session_start();
+// include "dbconnect.php";
 
 // ---
 
@@ -180,9 +181,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         unset($_SESSION['csrf_expire']);
 
         // Enregistrement des données
-        // Redirection de l'utilisateur
         echo "Enregistrement en BDD !!!!!<br>";
         exit;
+
+        // Createion du tableau $user= []
+        // --
+        // $user = [
+        //     'firstname' => "John",
+        //     'lastname'  => "DOE",
+        //     'email'     => "john+2@doe.com",
+        //     'password'  => "AZErty123!",
+        //     'birthday'  => "1985-09-28",
+        // ];
+        
+
+        // Generation de la requete sql
+        // --
+        // $sql = "...";
+
+
+        // Preparation + Execution de la requete
+        // -- 
+        // $query = $stmt->prepare($sql);
+        // $query->execute();
+
+
+        // Verification de l'execution de la requete
+        // --
+        // $lastId = $stmt->lastInsertId();
+
+        // if ($lastId)
+        // {
+            // Redirection de l'utilisateur
+            // --
+            // header("location: <url>");
+            // exit;
+        // }
+        // else 
+        // {
+            // Message d'erreur
+        // }
     }
 }
 
