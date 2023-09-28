@@ -13,7 +13,7 @@ $password_max           = 12;
 $password_special_chars = "!-_*+=.()@#";
 $min_age                = 13;
 
-// Definition des valeurs par defaut des champs du formulair
+// Definition des valeurs par defaut des champs du formulaire
 $firstname      = null;
 $lastname       = null;
 $email          = null;

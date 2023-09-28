@@ -14,3 +14,11 @@ function dump(mixed $data, bool $vd=true): void
     $vd ? var_dump($data) : print_r($data);
     echo "</pre>";
 }
+
+function dd(mixed $data, bool $vd=true): void
+{
+    echo "<pre>";
+    $vd ? var_dump($data) : print_r($data);
+    echo "</pre>";
+    die();
+}
