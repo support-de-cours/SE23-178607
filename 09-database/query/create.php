@@ -4,10 +4,13 @@
 $user = [
     'firstname' => "John",
     'lastname'  => "DOE",
-    'email'     => "john+2@doe.com",
+    'email'     => "john+3@doe.com",
     'password'  => "AZErty123!",
     'birthday'  => "1985-09-28",
 ];
+
+
+
 
 
 // Definition de la requete SQL
@@ -43,11 +46,16 @@ $keys = array_keys($user); // creation d'un tableau dont les valeurs sont les cl
 $cols = "`".implode("`, `", $keys)."`"; // creation de la chaine de caractères représentant les colones au format SQL
 // dump($cols, false);
 
-$values = "\"".implode("\", \"", $user)."\"";  // creation de la chaine de caractères représentant les valeurs au format SQL
+// POUR SQL : creation de la chaine de caractères représentant les valeurs au format SQL
+// $values = "\"".implode("\", \"", $user)."\"";  
+
+// POUR PDO : creation de la chaine de caractères représentant les valeurs au format SQL
+$values = ":".implode(", :", $keys);  
+
 // dump($values, false);
 
 $sql = "INSERT INTO `user` ($cols) VALUES ($values);"; // compilation de la chaine de caractères SQL finale
-// dump($sql, false);
+dump($sql, false);
 
 
 
@@ -57,6 +65,13 @@ $sql = "INSERT INTO `user` ($cols) VALUES ($values);"; // compilation de la chai
 
 // Preparation
 $query = $stmt->prepare($sql);
+
+// 
+foreach ($user as $key => $value)
+{
+    $query->bindValue(":$key", $value, PDO::PARAM_STR);
+}
+
 
 // Execution de la requete
 $query->execute();
